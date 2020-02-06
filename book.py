@@ -75,22 +75,26 @@ class Book:
             page.save(output)
 
     @staticmethod
-    def should_skip(page, skips):
-        return page.name in skips or page.file_name in skips
+    def make_should_skip(skips):
+        return lambda page: page.name in skips or page.file_name in skips
 
-    def remove_border(self, top, down, left, right, skips={}):
+    def remove_border(self, top, down, left, right, skips={}, should_skip=None):
+        should_skip = should_skip or self.make_should_skip(skips)
+
         self.pages = [
             page.remove_border(
                 top, down, left, right,
-                skip=self.should_skip(page, skips)
+                skip=should_skip(page)
             )
             for page in self.pages
         ]
         return self
 
-    def split(self, n, edge_width=0, skips={}):
+    def split(self, n, edge_width=0, skips={}, should_skip=None):
+        should_skip = should_skip or self.make_should_skip(skips)
+
         self.pages = np.hstack([
-            page.split(n, edge_width, skip=self.should_skip(page, skips))
+            page.split(n, edge_width, skip=should_skip(page))
             for page in self.pages
         ])
         return self
