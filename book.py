@@ -1,6 +1,8 @@
 import os
+import shutil
 import cv2
 import numpy as np
+
 
 class Page:
     def __init__(self, input=None, name=None, ext=None):
@@ -63,6 +65,19 @@ class Page:
             in enumerate(zip(left_borders, right_borders))
         ]
 
+    def reverse_background(self, skip=False):
+        if skip:
+            return self
+
+        self.image = cv2.inRange(
+            self.image,
+            np.array([0, 0, 0], dtype="uint8"),
+            np.array([100, 100, 100], dtype="uint8")
+        )
+        return self
+
+
+
 class Book:
 
     def __init__(self, inputs=None):
@@ -70,7 +85,11 @@ class Book:
             inputs = [os.path.join(inputs, fn) for fn in os.listdir(inputs)]
         self.pages = [Page(fn) for fn in inputs]
 
-    def save(self, output):
+    def save(self, output, clear_output=True):
+        if clear_output:
+            shutil.rmtree(output, ignore_errors=True)
+            os.makedirs(output)
+
         for page in self.pages:
             page.save(output)
 
@@ -97,4 +116,13 @@ class Book:
             page.split(n, edge_width, skip=should_skip(page))
             for page in self.pages
         ])
+        return self
+
+    def reverse_background(self, skips={}, should_skip=None):
+        should_skip = should_skip or self.make_should_skip(skips)
+
+        self.pages = [
+            page.reverse_background(skip=should_skip(page))
+            for page in self.pages
+        ]
         return self
