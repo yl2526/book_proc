@@ -58,21 +58,21 @@ class Page:
         return [
             Page(
                 self.image[:, left_border:right_border],
-                '{}-split-{}'.format(self.name, slice),
+                '{}-split-{}'.format(self.name, n - slice),
                 self.ext
             )
             for slice, (left_border, right_border)
             in enumerate(zip(left_borders, right_borders))
         ]
 
-    def reverse_background(self, skip=False):
+    def reverse_background(self, threshold=100, skip=False):
         if skip:
             return self
 
         self.image = cv2.inRange(
             self.image,
             np.array([0, 0, 0], dtype="uint8"),
-            np.array([100, 100, 100], dtype="uint8")
+            np.array([threshold, threshold, threshold], dtype="uint8")
         )
         return self
 
@@ -118,11 +118,11 @@ class Book:
         ])
         return self
 
-    def reverse_background(self, skips={}, should_skip=None):
+    def reverse_background(self, threshold=100, skips={}, should_skip=None):
         should_skip = should_skip or self.make_should_skip(skips)
 
         self.pages = [
-            page.reverse_background(skip=should_skip(page))
+            page.reverse_background(threshold=threshold, skip=should_skip(page))
             for page in self.pages
         ]
         return self
