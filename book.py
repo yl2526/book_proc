@@ -2,6 +2,8 @@ import os
 import shutil
 import cv2
 import numpy as np
+from fpdf import FPDF
+from PIL import Image
 
 
 class Page:
@@ -77,13 +79,49 @@ class Page:
         return self
 
 
-
 class Book:
 
-    def __init__(self, inputs=None):
+    def __init__(self, inputs=None, title=None):
         if isinstance(inputs, str) and os.path.isdir(inputs):
+            _, title = os.path.split(inputs)
             inputs = [os.path.join(inputs, fn) for fn in os.listdir(inputs)]
-        self.pages = [Page(fn) for fn in inputs]
+        self.title = title
+        self.inputs = inputs
+        self._pages = None
+
+    @property
+    def pages(self):
+        if self._pages is not None:
+            self._pages =[Page(fn) for fn in self.inputs]
+        return self._pages
+
+    @property
+    def images(self):
+        if self._pages is not None:
+            return [
+                Image.fromarray(page.image)
+                for page in self._pages
+            ]
+
+        images = []
+        for fn in self.inputs:
+            try:
+                image = Image.open(fn)
+            except OSError as err:
+                if err.args[0].startswith('cannot identify image file'):
+                    print('The file below is not supported image type:')
+                    print(fn)
+                else:
+                    raise err
+            else:
+                if image.mode == "RGBA":
+                    rgb = Image.new('RGB', image.size, (255, 255, 255))
+                    rgb.paste(image, mask=image.split()[3])
+                    images.append(rgb)
+                else:
+                    images.append(image)
+
+        return images
 
     def save(self, output, clear_output=True):
         if clear_output:
@@ -92,6 +130,19 @@ class Book:
 
         for page in self.pages:
             page.save(output)
+
+    def to_pdf(self, output, title=None):
+        title = title or self.title
+
+        images = self.images
+        images[0].save(
+            os.path.join(output, f"{title}.pdf"),
+            "PDF",
+            resolution=100.0,
+            save_all=True,
+            append_images=images
+        )
+        return self
 
     @staticmethod
     def make_should_skip(skips):
