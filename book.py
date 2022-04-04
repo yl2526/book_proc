@@ -78,6 +78,23 @@ class Page:
         )
         return self
 
+    def resize(self, factor=0.75, skip=False):
+        if skip:
+            return self
+
+        height = int(factor * self.image.shape[0])
+        width = int(factor * self.image.shape[1])
+
+        self.image = cv2.resize(self.image, (width, height), interpolation=cv2.INTER_LANCZOS4)
+        return self
+
+    def blur(self, ksize=(9, 9), sigma=(1, 1), skip=False):
+        if skip:
+            return self
+
+        self.image = cv2.GaussianBlur(self.image, ksize, *sigma)
+        return self
+
 
 class Book:
 
@@ -91,9 +108,13 @@ class Book:
 
     @property
     def pages(self):
-        if self._pages is not None:
-            self._pages =[Page(fn) for fn in self.inputs]
+        if self._pages is None:
+            self._pages = [Page(fn) for fn in self.inputs]
         return self._pages
+
+    @pages.setter
+    def pages(self, pages):
+        self._pages = pages
 
     @property
     def images(self):
@@ -174,6 +195,24 @@ class Book:
 
         self.pages = [
             page.reverse_background(threshold=threshold, skip=should_skip(page))
+            for page in self.pages
+        ]
+        return self
+
+    def resize(self, factor=0.75, skips={}, should_skip=None):
+        should_skip = should_skip or self.make_should_skip(skips)
+
+        self.pages = [
+            page.resize(factor, skip=should_skip(page))
+            for page in self.pages
+        ]
+        return self
+
+    def blur(self, ksize=(9, 9), sigma=(1, 1), skips={}, should_skip=None):
+        should_skip = should_skip or self.make_should_skip(skips)
+
+        self.pages = [
+            page.blur(ksize, sigma, skip=should_skip(page))
             for page in self.pages
         ]
         return self
