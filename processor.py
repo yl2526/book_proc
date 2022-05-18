@@ -19,8 +19,8 @@ def make_book_processor(process, is_multiple):
                  processed = page
             else:
                 processed = process(page, *args, **options)
-            
-            if is_multiple:
+
+            if is_multiple and not is_skipping:
                 pages.extend(processed)
             else:
                 pages.append(processed)
