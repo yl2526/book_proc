@@ -8,13 +8,18 @@ if not os.path.isdir(out):
 
 
 folder = r'C:\BaiduYunDownload\漫画\temp'
+
+
 # for comic in os.listdir(folder):
 #     try:
 #         print(f'Processing {comic}')
 #         book = Book(os.path.join(folder, comic))
 #         book.to_pdf(out)
 #     except Exception as e:
-#         import ipdb; ipdb.set_trace()
+#         os.rename('processing', comic)
+#         print(f'Processing {comic} failed')
+#         print(e)
+#         # import ipdb; ipdb.set_trace()
 
 
 
@@ -29,7 +34,9 @@ for comic in os.listdir(folder):
         os.rename(comic, 'processing')
         book = (
             Book('processing')
-            .blur((3, 3))
+            # .blur((3, 3))
+            .remove_border(0, 0, 180, 180)
+            .split(2, 90)
         )
         book.to_pdf(out, comic)
     except Exception as e:

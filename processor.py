@@ -64,11 +64,11 @@ def split(page, n, edge_width=0):
 
     left_borders = [
         int(slice / n * width + (slice != 0) * edge_right_width / 2)
-        for slice in range(n)
+        for slice in reversed(range(n))
     ]
     right_borders = [
         int(slice / n * width - (slice != n) * edge_left_width / 2)
-        for slice in range(1, n + 1)
+        for slice in reversed(range(1, n + 1))
     ]
     return [
         Page(

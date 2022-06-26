@@ -39,7 +39,7 @@ book = (
     # .remove_border(66, 74, 50, 42, skips=imgs) # 英雄王、武を極めるため転生す ～そして
     # .remove_border(98, 100, 150, 180, should_skip=lambda page: page.name not in imgs) # 裏切られたSランク冒険者の俺は 
     # .remove_border(65, 65, 97, 112, skips=imgs) # 裏切られたSランク冒険者の俺は 
-    .remove_border(79, 65, 35, 35, skips=imgs) # 歴史に残る悪女になるぞ
+    # .remove_border(79, 65, 35, 35, skips=imgs) # 歴史に残る悪女になるぞ
     # .remove_border(43, 43, 75, 75, skips=imgs)
     # .split(3, -30, skips=imgs)
     # .reverse_background(60, skips=imgs) #(should_skip=is_img)
