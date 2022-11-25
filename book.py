@@ -59,11 +59,15 @@ class Book:
             ]
 
         images = []
-        for fn in self.inputs:
+        for index, fn in enumerate(self.inputs):
             try:
                 image = Image.open(fn)
-            except OSError as err:
-                if err.args[0].startswith('cannot identify image file'):
+            except Exception as err:
+                print(f'Failed to read the {index}-th image, "{fn}".')
+                if (
+                    isinstance(err, OSError)
+                    and err.args[0].startswith('cannot identify image file')
+                ):
                     print('The file below is not supported image type:')
                     print(fn)
                 else:

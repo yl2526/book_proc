@@ -64,11 +64,11 @@ def split(page, n, edge_width=0):
 
     left_borders = [
         int(slice / n * width + (slice != 0) * edge_right_width / 2)
-        for slice in reversed(range(n))
+        for slice in range(n)
     ]
     right_borders = [
         int(slice / n * width - (slice != n) * edge_left_width / 2)
-        for slice in reversed(range(1, n + 1))
+        for slice in range(1, n + 1)
     ]
     return [
         Page(
@@ -106,4 +106,9 @@ def resize(page, factor=0.75):
 def blur(page, ksize=(9, 9), sigma=(1, 1)):
 
     page.image = cv2.GaussianBlur(page.image, ksize, *sigma)
+    return page
+
+@registor_processor
+def threshold(page, threshold=200):
+    _, page.image = cv2.threshold(page.image, threshold, 255, cv2.THRESH_TOZERO)
     return page
