@@ -108,7 +108,15 @@ def blur(page, ksize=(9, 9), sigma=(1, 1)):
     page.image = cv2.GaussianBlur(page.image, ksize, *sigma)
     return page
 
+
+@registor_processor
+def median_blur(page, ksize=5):
+
+    page.image = cv2.medianBlur(page.image, ksize)
+    return page
+
+
 @registor_processor
 def threshold(page, threshold=200):
-    _, page.image = cv2.threshold(page.image, threshold, 255, cv2.THRESH_TOZERO)
+    _, page.image = cv2.threshold(page.image, threshold, 255, cv2.THRESH_BINARY)
     return page
